@@ -25,44 +25,44 @@ void initializeMarkers(visualization_msgs::Marker &sourcePoint,
     visualization_msgs::Marker &finalPath)
 {
     //init headers
-	sourcePoint.header.frame_id    = goalPoint.header.frame_id    = randomPoint.header.frame_id    = rrtTreeMarker.header.frame_id    = finalPath.header.frame_id    = "path_planner";
-	sourcePoint.header.stamp       = goalPoint.header.stamp       = randomPoint.header.stamp       = rrtTreeMarker.header.stamp       = finalPath.header.stamp       = ros::Time::now();
-	sourcePoint.ns                 = goalPoint.ns                 = randomPoint.ns                 = rrtTreeMarker.ns                 = finalPath.ns                 = "path_planner";
-	sourcePoint.action             = goalPoint.action             = randomPoint.action             = rrtTreeMarker.action             = finalPath.action             = visualization_msgs::Marker::ADD;
-	sourcePoint.pose.orientation.w = goalPoint.pose.orientation.w = randomPoint.pose.orientation.w = rrtTreeMarker.pose.orientation.w = finalPath.pose.orientation.w = 1.0;
+	  sourcePoint.header.frame_id    = goalPoint.header.frame_id    = randomPoint.header.frame_id    = rrtTreeMarker.header.frame_id    = finalPath.header.frame_id    = "path_planner";
+	  sourcePoint.header.stamp       = goalPoint.header.stamp       = randomPoint.header.stamp       = rrtTreeMarker.header.stamp       = finalPath.header.stamp       = ros::Time::now();
+	  sourcePoint.ns                 = goalPoint.ns                 = randomPoint.ns                 = rrtTreeMarker.ns                 = finalPath.ns                 = "path_planner";
+	  sourcePoint.action             = goalPoint.action             = randomPoint.action             = rrtTreeMarker.action             = finalPath.action             = visualization_msgs::Marker::ADD;
+	  sourcePoint.pose.orientation.w = goalPoint.pose.orientation.w = randomPoint.pose.orientation.w = rrtTreeMarker.pose.orientation.w = finalPath.pose.orientation.w = 1.0;
 
     //setting id for each marker
     sourcePoint.id    = 0;
-	goalPoint.id      = 1;
-	randomPoint.id    = 2;
-	rrtTreeMarker.id  = 3;
+	  goalPoint.id      = 1;
+	  randomPoint.id    = 2;
+	  rrtTreeMarker.id  = 3;
     finalPath.id      = 4;
 
-	//defining types
-	rrtTreeMarker.type                                    = visualization_msgs::Marker::LINE_LIST;
-	finalPath.type                                        = visualization_msgs::Marker::LINE_STRIP;
-	sourcePoint.type  = goalPoint.type = randomPoint.type = visualization_msgs::Marker::SPHERE;
+	  //defining types
+	  rrtTreeMarker.type                                    = visualization_msgs::Marker::LINE_LIST;
+	  finalPath.type                                        = visualization_msgs::Marker::LINE_STRIP;
+	  sourcePoint.type  = goalPoint.type = randomPoint.type = visualization_msgs::Marker::SPHERE;
 
-	//setting scale
-	rrtTreeMarker.scale.x = 0.2;
-	finalPath.scale.x     = 1;
-	sourcePoint.scale.x   = goalPoint.scale.x = randomPoint.scale.x = 2;
+	  //setting scale
+	  rrtTreeMarker.scale.x = 0.2;
+	  finalPath.scale.x     = 1;
+	  sourcePoint.scale.x   = goalPoint.scale.x = randomPoint.scale.x = 2;
     sourcePoint.scale.y   = goalPoint.scale.y = randomPoint.scale.y = 2;
     sourcePoint.scale.z   = goalPoint.scale.z = randomPoint.scale.z = 1;
 
     //assigning colors
-	sourcePoint.color.r   = 1.0f;
-	goalPoint.color.g     = 1.0f;
+	  sourcePoint.color.r   = 1.0f;
+	  goalPoint.color.g     = 1.0f;
     randomPoint.color.b   = 1.0f;
 
-	rrtTreeMarker.color.r = 0.8f;
-	rrtTreeMarker.color.g = 0.4f;
+	  rrtTreeMarker.color.r = 0.8f;
+	  rrtTreeMarker.color.g = 0.4f;
 
-	finalPath.color.r = 0.2f;
-	finalPath.color.g = 0.2f;
-	finalPath.color.b = 1.0f;
+	  finalPath.color.r = 0.2f;
+	  finalPath.color.g = 0.2f;
+	  finalPath.color.b = 1.0f;
 
-	sourcePoint.color.a = goalPoint.color.a = randomPoint.color.a = rrtTreeMarker.color.a = finalPath.color.a = 1.0f;
+	  sourcePoint.color.a = goalPoint.color.a = randomPoint.color.a = rrtTreeMarker.color.a = finalPath.color.a = 1.0f;
 }
 
 vector< vector<geometry_msgs::Point> > getObstacles()
@@ -74,30 +74,43 @@ vector< vector<geometry_msgs::Point> > getObstacles()
 void addBranchtoRRTTree(visualization_msgs::Marker &rrtTreeMarker, RRT::rrtNode &tempNode, RRT &myRRT)
 {
 
-geometry_msgs::Point point;
+    geometry_msgs::Point point;
 
-point.x = tempNode.posX;
-point.y = tempNode.posY;
-point.z = 0;
-rrtTreeMarker.points.push_back(point);
+    point.x = tempNode.posX;
+    point.y = tempNode.posY;
+    point.z = 0;
+    rrtTreeMarker.points.push_back(point);
 
-RRT::rrtNode parentNode = myRRT.getParent(tempNode.nodeID);
+    RRT::rrtNode parentNode = myRRT.getParent(tempNode.nodeID);
 
-point.x = parentNode.posX;
-point.y = parentNode.posY;
-point.z = 0;
+    point.x = parentNode.posX;
+    point.y = parentNode.posY;
+    point.z = 0;
 
-rrtTreeMarker.points.push_back(point);
+    rrtTreeMarker.points.push_back(point);
 }
 
+/**
+ * @brief  检测是否在地图边界里面
+ * @param tempNode 当前节点
+ * @return
+ */
 bool checkIfInsideBoundary(RRT::rrtNode &tempNode)
 {
+    // TODO， this boudary is contant data, it need to adjust automatically to adopt to the map that we load.
     if(tempNode.posX < 0 || tempNode.posY < 0  || tempNode.posX > 100 || tempNode.posY > 100 ) return false;
     else return true;
 }
 
+/**
+ * @brief  检测是否在障碍物里面
+ * @param obstArray 障碍物队列
+ * @param tempNode 当前节点
+ * @return
+ */
 bool checkIfOutsideObstacles(vector< vector<geometry_msgs::Point> > &obstArray, RRT::rrtNode &tempNode)
 {
+    // TODO， this checke of the obstacle is checking whether the node in the rectangle.
     double AB, AD, AMAB, AMAD;
 
     for(int i=0; i<obstArray.size(); i++)
@@ -106,7 +119,9 @@ bool checkIfOutsideObstacles(vector< vector<geometry_msgs::Point> > &obstArray, 
         AD = (pow(obstArray[i][0].x - obstArray[i][3].x,2) + pow(obstArray[i][0].y - obstArray[i][3].y,2));
         AMAB = (((tempNode.posX - obstArray[i][0].x) * (obstArray[i][1].x - obstArray[i][0].x)) + (( tempNode.posY - obstArray[i][0].y) * (obstArray[i][1].y - obstArray[i][0].y)));
         AMAD = (((tempNode.posX - obstArray[i][0].x) * (obstArray[i][3].x - obstArray[i][0].x)) + (( tempNode.posY - obstArray[i][0].y) * (obstArray[i][3].y - obstArray[i][0].y)));
-         //(0<AM⋅AB<AB⋅AB)∧(0<AM⋅AD<AD⋅AD)
+
+        // 如果在点M在长方形里面，则AM×AD小于AD×AD，AM×AB小于AB×AB且他们都是大于零的，否则在相反的方向。
+        //(0<AM⋅AB<AB⋅AB)∧(0<AM⋅AD<AD⋅AD)
         if((0 < AMAB) && (AMAB < AB) && (0 < AMAD) && (AMAD < AD))
         {
             return false;
@@ -115,6 +130,10 @@ bool checkIfOutsideObstacles(vector< vector<geometry_msgs::Point> > &obstArray, 
     return true;
 }
 
+/**
+ * @brief  产生临时点
+ * @param tempNode 当前节点号
+ */
 void generateTempPoint(RRT::rrtNode &tempNode)
 {
     int x = rand() % 150 + 1;
@@ -124,17 +143,27 @@ void generateTempPoint(RRT::rrtNode &tempNode)
     tempNode.posY = y;
 }
 
+/**
+ * @brief  向RRT队列中添加新的节点
+ * @param myRRT RRT队列
+ * @param tempNode 当前节点
+ * @param rrtStepSize RRT步长
+ * @param obstArray 障碍物队列
+ * @return
+ */
 bool addNewPointtoRRT(RRT &myRRT, RRT::rrtNode &tempNode, int rrtStepSize, vector< vector<geometry_msgs::Point> > &obstArray)
 {
     int nearestNodeID = myRRT.getNearestNodeID(tempNode.posX,tempNode.posY);
 
     RRT::rrtNode nearestNode = myRRT.getNode(nearestNodeID);
 
+    // 通过步长将当前节点转换为二维坐标系
     double theta = atan2(tempNode.posY - nearestNode.posY,tempNode.posX - nearestNode.posX);
 
     tempNode.posX = nearestNode.posX + (rrtStepSize * cos(theta));
     tempNode.posY = nearestNode.posY + (rrtStepSize * sin(theta));
 
+    // 检测是否在障碍物里面，如果不是，则把当前节添加到RRT队列中
     if(checkIfInsideBoundary(tempNode) && checkIfOutsideObstacles(obstArray,tempNode))
     {
         tempNode.parentID = nearestNodeID;
@@ -146,6 +175,13 @@ bool addNewPointtoRRT(RRT &myRRT, RRT::rrtNode &tempNode, int rrtStepSize, vecto
         return false;
 }
 
+/**
+ * @brief  检测节点是否靠近目标点
+ * @param X 目标点的X
+ * @param Y 目标点的Y
+ * @param tempNode 当前节点
+ * @return
+ */
 bool checkNodetoGoal(int X, int Y, RRT::rrtNode &tempNode)
 {
     double distance = sqrt(pow(X-tempNode.posX,2)+pow(Y-tempNode.posY,2));
@@ -156,6 +192,15 @@ bool checkNodetoGoal(int X, int Y, RRT::rrtNode &tempNode)
     return false;
 }
 
+/**
+ * @brief  设置最后的路径数据
+ * @param rrtPaths 路径
+ * @param myRRT RRT队列
+ * @param i 路径的编号
+ * @param finalpath 用于显示的路径
+ * @param goalX 目标点的X
+ * @param goalY 目标点的Y
+ */
 void setFinalPathData(vector< vector<int> > &rrtPaths, RRT &myRRT, int i, visualization_msgs::Marker &finalpath, int goalX, int goalY)
 {
     RRT::rrtNode tempNode;
@@ -180,12 +225,12 @@ int main(int argc,char** argv)
 {
     //initializing ROS
     ros::init(argc,argv,"rrt_node");
-	ros::NodeHandle n;
+	  ros::NodeHandle n;
 
-	//defining Publisher
-	ros::Publisher rrt_publisher = n.advertise<visualization_msgs::Marker>("path_planner_rrt",1);
+	  //defining Publisher
+	  ros::Publisher rrt_publisher = n.advertise<visualization_msgs::Marker>("path_planner_rrt",1);
 
-	//defining markers
+	  //defining markers
     visualization_msgs::Marker sourcePoint;
     visualization_msgs::Marker goalPoint;
     visualization_msgs::Marker randomPoint;
@@ -214,11 +259,14 @@ int main(int argc,char** argv)
     int goalX, goalY;
     goalX = goalY = 95;
 
+    // RRT 步长
     int rrtStepSize = 3;
 
     vector< vector<int> > rrtPaths;
     vector<int> path;
-    int rrtPathLimit = 1;
+
+    // RRT 路径寻找数量，找到一定数量后，进行比较得出最好的路径，也不一定是全局最优的
+    int rrtPathLimit = 2;
 
     int shortestPathLength = 9999;
     int shortestPath = -1;
@@ -231,8 +279,10 @@ int main(int argc,char** argv)
 
     while(ros::ok() && status)
     {
+        // 判断是否找到足够多的路径了
         if(rrtPaths.size() < rrtPathLimit)
         {
+            // 产生临时点
             generateTempPoint(tempNode);
             //std::cout<<"tempnode generated"<<endl;
             addNodeResult = addNewPointtoRRT(myRRT,tempNode,rrtStepSize,obstacleList);
@@ -276,5 +326,6 @@ int main(int argc,char** argv)
         ros::spinOnce();
         ros::Duration(0.01).sleep();
     }
-	return 1;
+
+    return 1;
 }
