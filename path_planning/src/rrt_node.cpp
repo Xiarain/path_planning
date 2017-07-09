@@ -138,7 +138,7 @@ void generateTempPoint(RRT::rrtNode &tempNode)
 {
     int x = rand() % 150 + 1;
     int y = rand() % 150 + 1;
-    //std::cout<<"Random X: "<<x <<endl<<"Random Y: "<<y<<endl;
+    // std::cout<<"Random X: "<<x << " "<<"Random Y: "<<y<<endl;
     tempNode.posX = x;
     tempNode.posY = y;
 }
@@ -160,12 +160,16 @@ bool addNewPointtoRRT(RRT &myRRT, RRT::rrtNode &tempNode, int rrtStepSize, vecto
     // 通过步长将当前节点转换为二维坐标系
     double theta = atan2(tempNode.posY - nearestNode.posY,tempNode.posX - nearestNode.posX);
 
+    // 因为这个是最近节点加上一个随机步长，所以肯定是在已有的节点继续往下生长
     tempNode.posX = nearestNode.posX + (rrtStepSize * cos(theta));
     tempNode.posY = nearestNode.posY + (rrtStepSize * sin(theta));
 
-    // 检测是否在障碍物里面，如果不是，则把当前节添加到RRT队列中
+    // 检测树的增长是否在障碍物里面和是否超过边界，如果不是，则把当前节添加到RRT队列中
+    // 因为在上面进行了步长的转换，所以并不是直接将随机数和边界和障碍物进行比较
     if(checkIfInsideBoundary(tempNode) && checkIfOutsideObstacles(obstArray,tempNode))
     {
+        //std::cout << "增长步长：" << (rrtStepSize * cos(theta)) << "   " << rrtStepSize * sin(theta) << endl;
+
         tempNode.parentID = nearestNodeID;
         tempNode.nodeID = myRRT.getTreeSize();
         myRRT.addNewNode(tempNode);
@@ -266,7 +270,7 @@ int main(int argc,char** argv)
     vector<int> path;
 
     // RRT 路径寻找数量，找到一定数量后，进行比较得出最好的路径，也不一定是全局最优的
-    int rrtPathLimit = 2;
+    int rrtPathLimit = 1;
 
     int shortestPathLength = 9999;
     int shortestPath = -1;
@@ -288,9 +292,9 @@ int main(int argc,char** argv)
             addNodeResult = addNewPointtoRRT(myRRT,tempNode,rrtStepSize,obstacleList);
             if(addNodeResult)
             {
-               // std::cout<<"tempnode accepted"<<endl;
+                // std::cout<<"tempnode accepted"<< tempNode.posX << " " << tempNode.posY << endl;
                 addBranchtoRRTTree(rrtTreeMarker,tempNode,myRRT);
-               // std::cout<<"tempnode printed"<<endl;
+                // std::cout<<"tempnode printed"<<endl;
                 nodeToGoal = checkNodetoGoal(goalX, goalY,tempNode);
                 if(nodeToGoal)
                 {

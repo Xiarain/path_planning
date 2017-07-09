@@ -101,8 +101,11 @@ int RRT::getNearestNodeID(double X, double Y)
 {
     int i, returnID;
     double distance = 9999, tempDistance;
+
+    // 遍历整个RRT树
     for(i=0; i<this->getTreeSize(); i++)
     {
+        // 没有距离大小限制，只需要找到一个最近接的进行，直接拿随机数跟已有的RRT分支求解欧式距离
         tempDistance = getEuclideanDistance(X,Y, getPosX(i),getPosY(i));
         if (tempDistance < distance)
         {
